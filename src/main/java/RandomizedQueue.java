@@ -12,18 +12,24 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     }
                       
     private class RandomQueueIterator implements Iterator<Item> {
-
+        private int count;
+        private final int[] tempArray;
+        
+        public RandomQueueIterator() {
+            tempArray = StdRandom.permutation(size);
+        }
+        
         @Override
         public boolean hasNext() {
-            return size > 0;
+            return count < size;
         }
 
         @Override
         public Item next() {
-            if (!hasNext()) {
-                throw new NoSuchElementException();
+            if (count == size) {
+                throw new NoSuchElementException("No more element to iterate");
             }
-            return sample();
+            return sampleArray[tempArray[count++]];
         }
         @Override
         public void remove() {
@@ -63,7 +69,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         int index = StdRandom.uniform(size);
         Item lastItem = sampleArray[index];
         sampleArray[index] = sampleArray[--size];
-        
+        sampleArray[size] = null;
         if (size == sampleArray.length/4) {
             resize(sampleArray.length/2);
         }
