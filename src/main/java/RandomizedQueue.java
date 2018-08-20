@@ -23,7 +23,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
             if (!hasNext()) {
                 throw new NoSuchElementException();
             }
-            return dequeue();
+            return sample();
         }
         @Override
         public void remove() {
