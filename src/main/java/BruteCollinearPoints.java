@@ -4,7 +4,7 @@ import java.util.List;
 
 public class BruteCollinearPoints {
     
-    private final LineSegment[] collinearLines;
+    private LineSegment[] collinearLines;
     
     public BruteCollinearPoints(Point[] points) {
         if (points == null) {
