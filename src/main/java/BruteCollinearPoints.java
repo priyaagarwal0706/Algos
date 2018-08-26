@@ -45,7 +45,7 @@ public class BruteCollinearPoints {
         return collinearLines.length;
     }
     public LineSegment[] segments() {
-        return collinearLines.clone();
+        return collinearLines;
     }
     private static void checkForDuplicates(Point[] points) {
         for (int i = 0; i < points.length-1; i++) {
