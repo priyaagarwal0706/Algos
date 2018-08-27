@@ -1,62 +1,65 @@
 package collinear;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-
 public class FastCollinearPoints {
    
-    private List<List<Point>> tempLs = new ArrayList<>();
     private List<LineSegment> colinearSegments = new ArrayList<>();
-    public FastCollinearPoints(Point[] points)   {
+    public FastCollinearPoints(Point[] points) {
         if (points == null) {
             throw new IllegalArgumentException("Input is null");
         }
-        Point[] tempPoints = points.clone();
-        checkIfPointNull(points);
-        Arrays.sort(points);
-        checkForDuplicates(points);
+        Point[] tempPoints = Arrays.copyOf(points, points.length);
        
+        checkIfPointNull(points);
         for (Point refPoint : points) {
-            Arrays.sort(tempPoints);
-            Arrays.sort(tempPoints, refPoint.slopeOrder());
-            List<Point> temp = new ArrayList<>();
+           Arrays.sort(tempPoints, refPoint.slopeOrder());
             double slope = 0;
             double lastSlope = Double.NEGATIVE_INFINITY;
-             for (int i = 0; i < tempPoints.length; i++) {
+            Point endPoint = refPoint;
+            Point startPoint = refPoint;
+            int noOfPoints = 0;
+            for (int i = 1; i < tempPoints.length; i++) {
                  Point newPoint = tempPoints[i];
                  slope = refPoint.slopeTo(newPoint);
+                 if (slope == Double.NEGATIVE_INFINITY) {
+                     throw new IllegalArgumentException("Duplicate point present in given array");
+                 }
                  if (slope == lastSlope) {
-                    temp.add(newPoint);
+                     if (slope == newPoint.slopeTo(tempPoints[i-1])) {
+                        if (tempPoints[i-1].compareTo(startPoint) <= 0) 
+                            startPoint = tempPoints[i-1];
+                        
+                        if (tempPoints[i-1].compareTo(endPoint) >= 0)
+                            endPoint = tempPoints[i-1];
+                     } 
+                     if (newPoint.compareTo(endPoint) >= 0) {
+                         endPoint = newPoint;
+                     }
+                     if (newPoint.compareTo(startPoint) <= 0) {
+                         startPoint = newPoint;
+ 
+                     }
+                     noOfPoints++;
                   } else {
-                    if (temp.size() >= 3) {
-                      temp.add(refPoint);
-                      Collections.sort(temp);
-                      addIfNewPoints(temp.get(0), temp.get(temp.size()-1));
+                    
+                    if (noOfPoints >= 3 && startPoint.compareTo(refPoint) >= 0) {
+                        colinearSegments.add(new LineSegment(startPoint, endPoint));
                     }
-                    temp.clear();
-                    temp.add(newPoint);
+                    startPoint = refPoint;
+                    endPoint = refPoint;
+                    noOfPoints = 1;
                     lastSlope = slope;
+                  
                 }
              }
-             if (temp.size() >= 3) {
-                 temp.add(refPoint);
-                 Collections.sort(temp);
-                 addIfNewPoints(temp.get(0), temp.get(temp.size()-1));
+             if (noOfPoints >= 3 && startPoint.compareTo(refPoint) >= 0) {
+                colinearSegments.add(new LineSegment(startPoint, endPoint));
              }
         }
     }
     
-     private void addIfNewPoints(Point startPoint, Point endPoint) {
-       List<Point> arr = new ArrayList<>();
-       arr.add(startPoint);
-       arr.add(endPoint);
-       if (!tempLs.contains(arr)) {
-          tempLs.add(arr);
-          colinearSegments.add(new LineSegment(startPoint, endPoint));
-       }
-       
-    }
+     
      
     public  int numberOfSegments() {
         return colinearSegments.size();
@@ -69,12 +72,6 @@ public class FastCollinearPoints {
         for (Point p : points) {
             if (p == null) 
                 throw new IllegalArgumentException("Point is null in given array");
-        }
-    }
-    private static void checkForDuplicates(Point[] points) {
-        for (int i = 0; i < points.length-1; i++) {
-            if (points[i].compareTo(points[i+1]) == 0) 
-                throw new IllegalArgumentException("Duplicate point present in given array");
         }
     }
 }

@@ -10,32 +10,25 @@ public class BruteCollinearPoints {
         if (points == null) {
             throw new IllegalArgumentException("Input is null");
         }
-        checkIfPointNull(points);
-        Arrays.sort(points);
-        checkForDuplicates(points);
-        
-       
-        for (int i = 0; i < points.length-3; i++) {
-            for (int j = i+1; j < points.length-2; j++) {
-                for (int k = j+1; k < points.length-1; k++) {
-                    if (points[i].slopeTo(points[j]) == points[i].slopeTo(points[k])) {
-                        for (int d = k+1; d < points.length; d++) {
-                            if (points[i].slopeTo(points[j]) == points[i].slopeTo(points[d])) {
-                                Point[] cPoints = {points[i], points[j], points[k], points[d]};
+        Point[] refPoints = points.clone();
+        checkIfPointNull(refPoints);
+        Arrays.sort(refPoints);
+        checkForDuplicates(refPoints);
+        for (int i = 0; i < refPoints.length-3; i++) {
+            for (int j = i+1; j < refPoints.length-2; j++) {
+                for (int k = j+1; k < refPoints.length-1; k++) {
+                    if (refPoints[i].slopeTo(refPoints[j]) == refPoints[i].slopeTo(refPoints[k])) {
+                        for (int d = k+1; d < refPoints.length; d++) {
+                            if (refPoints[i].slopeTo(refPoints[j]) == refPoints[i].slopeTo(refPoints[d])) {
+                                Point[] cPoints = {refPoints[i], refPoints[j], refPoints[k], refPoints[d]};
                                 Arrays.sort(cPoints);
                                 LineSegment collinearLine = new LineSegment(cPoints[0], cPoints[3]);
                                 if (!pointList.contains(collinearLine)) {
                                     pointList.add(collinearLine);
                                 }
-                               
-
                             }
-                            
-                            
                         }
                     }
-                    
-                    
                 }
             }
         }
