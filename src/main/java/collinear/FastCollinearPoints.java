@@ -5,24 +5,25 @@ import java.util.Collections;
 import java.util.List;
 
 public class FastCollinearPoints {
-    private LineSegment[] collinearLines;
+   
     private List<List<Point>> tempLs = new ArrayList<>();
-
+    private List<LineSegment> colinearSegments = new ArrayList<>();
     public FastCollinearPoints(Point[] points)   {
-        Point[] tempPoints = points;
         if (points == null) {
             throw new IllegalArgumentException("Input is null");
         }
+        Point[] tempPoints = points.clone();
         checkIfPointNull(points);
         Arrays.sort(points);
-        checkForDuplicates(tempPoints);
+        checkForDuplicates(points);
+       
         for (Point refPoint : points) {
             Arrays.sort(tempPoints);
             Arrays.sort(tempPoints, refPoint.slopeOrder());
             List<Point> temp = new ArrayList<>();
             double slope = 0;
             double lastSlope = Double.NEGATIVE_INFINITY;
-             for (int i = 1; i < tempPoints.length; i++) {
+             for (int i = 0; i < tempPoints.length; i++) {
                  Point newPoint = tempPoints[i];
                  slope = refPoint.slopeTo(newPoint);
                  if (slope == lastSlope) {
@@ -37,7 +38,6 @@ public class FastCollinearPoints {
                     temp.add(newPoint);
                     lastSlope = slope;
                 }
-                
              }
              if (temp.size() >= 3) {
                  temp.add(refPoint);
@@ -45,11 +45,6 @@ public class FastCollinearPoints {
                  addIfNewPoints(temp.get(0), temp.get(temp.size()-1));
              }
         }
-        collinearLines = new LineSegment[tempLs.size()];
-        for (int j = 0; j < tempLs.size(); j++) {
-           collinearLines[j] = new LineSegment(tempLs.get(j).get(0),tempLs.get(j).get(1));
-        }
-        
     }
     
      private void addIfNewPoints(Point startPoint, Point endPoint) {
@@ -58,16 +53,16 @@ public class FastCollinearPoints {
        arr.add(endPoint);
        if (!tempLs.contains(arr)) {
           tempLs.add(arr);
-        }
-    
-    
+          colinearSegments.add(new LineSegment(startPoint, endPoint));
+       }
+       
     }
      
     public  int numberOfSegments() {
-        return collinearLines.length;
+        return colinearSegments.size();
     }
     public LineSegment[] segments() {
-        return collinearLines;
+        return colinearSegments.toArray(new LineSegment[colinearSegments.size()]);
     }
     
     private void checkIfPointNull(Point[] points) {
@@ -82,5 +77,4 @@ public class FastCollinearPoints {
                 throw new IllegalArgumentException("Duplicate point present in given array");
         }
     }
-
 }
