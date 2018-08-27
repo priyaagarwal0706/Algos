@@ -1,21 +1,63 @@
 package collinear;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class BruteCollinearPoints {
     
-    private int count;
     private LineSegment[] collinearLines;
-    //The method segments() should include each line segment containing 4 
-    //points exactly once. If 4 points appear on a line segment in the order p→q→r→s, 
-    //then you should include either the line segment p→s or s→p (but not both) 
-    //and you should not include subsegments such as p→r or q→r. For simplicity,
-    //we will not supply any input to BruteCollinearPoints that has 5 or more collinear points.
+    
     public BruteCollinearPoints(Point[] points) {
-        // finds all line segments containing 4 points
+        if (points == null) {
+            throw new IllegalArgumentException("Input is null");
+        }
+        checkIfPointNull(points);
+        Arrays.sort(points);
+        checkForDuplicates(points);
+        
+        List<LineSegment> pointList = new ArrayList<>();
+        for (int i = 0; i < points.length-3; i++) {
+            for (int j = i+1; j < points.length-2; j++) {
+                for (int k = j+1; k < points.length-1; k++) {
+                    if (points[i].slopeTo(points[j]) == points[i].slopeTo(points[k])) {
+                        for (int d = k+1; d < points.length; d++) {
+                            if (points[i].slopeTo(points[j]) == points[i].slopeTo(points[d])) {
+                                Point[] cPoints = {points[i], points[j], points[k], points[d]};
+                                Arrays.sort(cPoints);
+                                LineSegment collinearLine = new LineSegment(cPoints[0], cPoints[3]);
+                                if (!pointList.contains(collinearLine)) {
+                                    pointList.add(collinearLine);
+                                }
+                               
+
+                            }
+                            
+                            
+                        }
+                    }
+                    
+                    
+                }
+            }
+        }
+        collinearLines = pointList.toArray(new LineSegment[pointList.size()]);
     }
     public int numberOfSegments() {
-        return count;
+        return collinearLines.length;
     }
     public LineSegment[] segments() {
         return collinearLines;
+    }
+    private static void checkForDuplicates(Point[] points) {
+        for (int i = 0; i < points.length-1; i++) {
+            if (points[i].compareTo(points[i+1]) == 0) 
+                throw new IllegalArgumentException("Duplicate point present in given array");
+        }
+    }
+    private void checkIfPointNull(Point[] points) {
+        for (Point p : points) {
+            if (p == null) 
+                throw new IllegalArgumentException("Point is null in given array");
+        }
     }
 }

@@ -1,49 +1,72 @@
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class FastCollinearPoints {
     private LineSegment[] collinearLines;
-    
+    private List<List<Point>> tempLs = new ArrayList<>();
+
     public FastCollinearPoints(Point[] points)   {
+        Point[] tempPoints = points;
         if (points == null) {
             throw new IllegalArgumentException("Input is null");
         }
         checkIfPointNull(points);
         Arrays.sort(points);
-        checkForDuplicates(points);
-        Arrays.sort(points, points[0].slopeOrder());
-        List<LineSegment> pointList = new ArrayList<>();
-        Point refPoint = points[0];
-        Point[] temp = new Point[points.length];
-        temp[0] = refPoint;
-        double lastSlope = refPoint.slopeTo(points[1]);
-        int count = 0;
-        for (int i = 1; i < points.length; i++) {
-            Point newPoint = points[i];
-            double slope = refPoint.slopeTo(newPoint);
-            if (slope == lastSlope) {
-               count++;
-               temp[count] = newPoint;
-           } else {
-               if (count >= 3) {
-                   pointList.add(new LineSegment(refPoint, points[i-1]));
-               }
-               count = 1;
-               temp[1] = newPoint;
-           }
-           lastSlope = slope;
+        checkForDuplicates(tempPoints);
+        for (Point refPoint : points) {
+            Arrays.sort(tempPoints);
+            Arrays.sort(tempPoints, refPoint.slopeOrder());
+            List<Point> temp = new ArrayList<>();
+            double slope = 0;
+            double lastSlope = Double.NEGATIVE_INFINITY;
+             for (int i = 1; i < tempPoints.length; i++) {
+                 Point newPoint = tempPoints[i];
+                 slope = refPoint.slopeTo(newPoint);
+                 if (slope == lastSlope) {
+                    temp.add(newPoint);
+                  } else {
+                    if (temp.size() >= 3) {
+                      temp.add(refPoint);
+                      Collections.sort(temp);
+                      addIfNewPoints(temp.get(0), temp.get(temp.size()-1));
+                    }
+                    temp.clear();
+                    temp.add(newPoint);
+                    lastSlope = slope;
+                }
+                
+             }
+             if (temp.size() >= 3) {
+                 temp.add(refPoint);
+                 Collections.sort(temp);
+                 addIfNewPoints(temp.get(0), temp.get(temp.size()-1));
+             }
         }
-        if (count >= 3) {
-            pointList.add(new LineSegment(refPoint, temp[count]));
+        collinearLines = new LineSegment[tempLs.size()];
+        for (int j = 0; j < tempLs.size(); j++) {
+           collinearLines[j] = new LineSegment(tempLs.get(j).get(0),tempLs.get(j).get(1));
         }
-        collinearLines = pointList.toArray(new LineSegment[pointList.size()]);
+        
     }
+    
+     private void addIfNewPoints(Point startPoint, Point endPoint) {
+       List<Point> arr = new ArrayList<>();
+       arr.add(startPoint);
+       arr.add(endPoint);
+       if (!tempLs.contains(arr)) {
+          tempLs.add(arr);
+        }
+    
+    
+    }
+     
     public  int numberOfSegments() {
         return collinearLines.length;
     }
     public LineSegment[] segments() {
-        return collinearLines.clone();
+        return collinearLines;
     }
     
     private void checkIfPointNull(Point[] points) {
@@ -58,4 +81,5 @@ public class FastCollinearPoints {
                 throw new IllegalArgumentException("Duplicate point present in given array");
         }
     }
+
 }
