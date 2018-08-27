@@ -2,24 +2,22 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
-
-import edu.princeton.cs.algs4.In;
 
 public class FastCollinearPoints {
    
     private List<List<Point>> tempLs = new ArrayList<>();
-    private List<LineSegment> colinearSegments = new ArrayList<LineSegment>();
+    private List<LineSegment> colinearSegments = new ArrayList<>();
     public FastCollinearPoints(Point[] points)   {
-        Point[] tempPoints = points;
         if (points == null) {
             throw new IllegalArgumentException("Input is null");
         }
+        Point[] tempPoints = points.clone();
         checkIfPointNull(points);
-        Arrays.sort(tempPoints);
-        checkForDuplicates(tempPoints);
+        Arrays.sort(points);
+        checkForDuplicates(points);
+       
         for (Point refPoint : points) {
-           
+            Arrays.sort(tempPoints);
             Arrays.sort(tempPoints, refPoint.slopeOrder());
             List<Point> temp = new ArrayList<>();
             double slope = 0;
@@ -78,22 +76,4 @@ public class FastCollinearPoints {
                 throw new IllegalArgumentException("Duplicate point present in given array");
         }
     }
-    public static void main(String[] args) {
-        try {
-          int[] inputPoints = new In("/Users/priya730563/Downloads/collinear/input40.txt").readAllInts();
-          int arraySize = 1;
-          Point[] points = new Point [inputPoints[0]];
-          for(int i=0;i<points.length;i++) {
-              points[i] = new Point(inputPoints[arraySize],inputPoints[arraySize+1]);
-              arraySize = arraySize+2;
-          }
-        FastCollinearPoints collinaerPoints = new FastCollinearPoints(points);
-          for(LineSegment p :collinaerPoints.segments()) {
-              System.out.println(p.toString());
-          }
-          System.out.println(collinaerPoints.numberOfSegments());
-        }catch(Exception e) {
-            e.printStackTrace();
-        }
-      }
 }
